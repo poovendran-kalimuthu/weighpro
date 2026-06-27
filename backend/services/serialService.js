@@ -201,6 +201,14 @@ async function connect(config) {
   currentPortName = config.comPort;
   autoReconnectEnabled = true;
 
+  if (config.comPort === 'VIRTUAL' || config.comPort === 'DUMMY') {
+    const simErr = new Error('Simulation mode is disabled. Please select a physical COM port.');
+    setStatus('Error', simErr);
+    addLog(0, 'ERROR', simErr);
+    autoReconnectEnabled = false;
+    return Promise.reject(simErr);
+  }
+
   return new Promise((resolve, reject) => {
     try {
       setStatus('Connecting...');
@@ -298,6 +306,11 @@ async function startWithSavedConfig() {
   try {
     const config = await SerialConfig.findOne();
     if (config && config.comPort) {
+      if (config.comPort === 'VIRTUAL' || config.comPort === 'DUMMY') {
+        console.log('[Serial Service] Stored legacy config is VIRTUAL/DUMMY. Skipping autostart. Standing by.');
+        setStatus('Disconnected');
+        return;
+      }
       console.log(`[Serial Service] Found saved config. Autostarting on ${config.comPort}...`);
       await connect(config);
     } else {
