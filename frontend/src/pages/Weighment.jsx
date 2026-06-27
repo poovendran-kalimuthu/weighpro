@@ -127,7 +127,7 @@ export default function Weighment() {
   }, [fetchAll]);
 
   useEffect(() => {
-    const socket = io('http://localhost:5000');
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
     
     socket.on('connection:status', (data) => {
       setScaleOnline(data.status === 'Connected');
