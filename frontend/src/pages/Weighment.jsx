@@ -127,7 +127,11 @@ export default function Weighment() {
   }, [fetchAll]);
 
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    const serialSource = localStorage.getItem('serial_source') || 'cloud';
+    const socketUrl = serialSource === 'local' 
+      ? 'http://localhost:5000' 
+      : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    const socket = io(socketUrl);
     
     socket.on('connection:status', (data) => {
       setScaleOnline(data.status === 'Connected');

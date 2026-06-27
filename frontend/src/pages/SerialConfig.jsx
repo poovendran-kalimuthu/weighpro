@@ -97,8 +97,11 @@ export default function SerialConfig() {
     fetchConfig();
     fetchStatusAndLogs();
 
-    // Establish live socket connection
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    const serialSource = localStorage.getItem('serial_source') || 'cloud';
+    const socketUrl = serialSource === 'local' 
+      ? 'http://localhost:5000' 
+      : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    const socket = io(socketUrl);
     
     socket.on('connection:status', (data) => {
       setStatus(data.status);
@@ -341,6 +344,44 @@ export default function SerialConfig() {
 
             <form onSubmit={handleSaveConfig} className="space-y-4">
               
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Serial Link Mode</label>
+                <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.setItem('serial_source', 'cloud');
+                      window.location.reload();
+                    }}
+                    className={cn(
+                      "py-2 px-3 text-xs font-bold rounded-lg transition-all cursor-pointer",
+                      (localStorage.getItem('serial_source') || 'cloud') === 'cloud' 
+                        ? "bg-white text-primary-600 shadow-sm" 
+                        : "text-slate-500 hover:text-slate-800"
+                    )}
+                  >
+                    Cloud Server
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.setItem('serial_source', 'local');
+                      window.location.reload();
+                    }}
+                    className={cn(
+                      "py-2 px-3 text-xs font-bold rounded-lg transition-all cursor-pointer",
+                      localStorage.getItem('serial_source') === 'local' 
+                        ? "bg-white text-primary-600 shadow-sm" 
+                        : "text-slate-500 hover:text-slate-800"
+                    )}
+                  >
+                    Local PC Bridge
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
+                  Use <strong>Local PC Bridge</strong> to connect to indicators on this computer while using the live website.
+                </p>
+              </div>
               <div>
                 <div className="flex justify-between items-center mb-1.5">
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">COM Port</label>

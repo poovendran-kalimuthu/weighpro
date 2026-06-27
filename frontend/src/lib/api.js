@@ -1,27 +1,41 @@
 // Vercel deployment trigger comment
-const API_BASE = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api` 
-  : 'http://localhost:5000/api';
-
+const getApiBase = (path) => {
+  if (path && path.startsWith('/serial')) {
+    const serialSource = localStorage.getItem('serial_source') || 'cloud';
+    if (serialSource === 'local') {
+      return 'http://localhost:5000/api';
+    }
+  }
+  return import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/api` 
+    : 'http://localhost:5000/api';
+};
 
 export const api = {
   get: (path, params = {}) => {
-    const url = new URL(`${API_BASE}${path}`);
+    const base = getApiBase(path);
+    const url = new URL(`${base}${path}`);
     Object.entries(params).forEach(([k, v]) => v && url.searchParams.set(k, v));
     return fetch(url.toString()).then(r => r.json());
   },
-  post: (path, data) =>
-    fetch(`${API_BASE}${path}`, {
+  post: (path, data) => {
+    const base = getApiBase(path);
+    return fetch(`${base}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    }).then(r => r.json()),
-  put: (path, data) =>
-    fetch(`${API_BASE}${path}`, {
+    }).then(r => r.json());
+  },
+  put: (path, data) => {
+    const base = getApiBase(path);
+    return fetch(`${base}${path}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    }).then(r => r.json()),
-  delete: (path) =>
-    fetch(`${API_BASE}${path}`, { method: 'DELETE' }).then(r => r.json()),
+    }).then(r => r.json());
+  },
+  delete: (path) => {
+    const base = getApiBase(path);
+    return fetch(`${base}${path}`, { method: 'DELETE' }).then(r => r.json());
+  },
 };
