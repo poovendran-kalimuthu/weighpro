@@ -24,6 +24,7 @@ export default function SerialConfig() {
   const [savingConfig, setSavingConfig] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [customPortMode, setCustomPortMode] = useState(false);
   
   // Real-time states
   const [status, setStatus] = useState('Disconnected'); // Connected, Disconnected, Error, Connecting
@@ -341,23 +342,42 @@ export default function SerialConfig() {
             <form onSubmit={handleSaveConfig} className="space-y-4">
               
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">COM Port</label>
-                <div className="flex gap-2">
-                  <select 
-                    value={comPort} 
-                    onChange={e => setComPort(e.target.value)}
-                    className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">COM Port</label>
+                  <button 
+                    type="button"
+                    onClick={() => setCustomPortMode(!customPortMode)}
+                    className="text-[10px] text-primary-500 hover:text-primary-600 font-bold uppercase tracking-wider cursor-pointer"
                   >
-                    {ports.length === 0 ? (
-                      <option value={comPort}>{comPort} (Not Found)</option>
-                    ) : (
-                      ports.map(p => (
-                        <option key={p.path} value={p.path}>
-                          {p.path} {p.friendlyName ? `(${p.friendlyName})` : ''}
-                        </option>
-                      ))
-                    )}
-                  </select>
+                    {customPortMode ? "Use Dropdown" : "Type Manually"}
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  {customPortMode ? (
+                    <input 
+                      type="text"
+                      value={comPort}
+                      onChange={e => setComPort(e.target.value)}
+                      placeholder="e.g. COM3 or /dev/ttyUSB0"
+                      className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 font-mono"
+                    />
+                  ) : (
+                    <select 
+                      value={comPort} 
+                      onChange={e => setComPort(e.target.value)}
+                      className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                    >
+                      {ports.length === 0 ? (
+                        <option value={comPort}>{comPort} (Not Found)</option>
+                      ) : (
+                        ports.map(p => (
+                          <option key={p.path} value={p.path}>
+                            {p.path} {p.friendlyName ? `(${p.friendlyName})` : ''}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  )}
                   <button 
                     type="button" 
                     onClick={fetchPorts}
