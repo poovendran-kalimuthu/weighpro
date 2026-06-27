@@ -397,14 +397,14 @@ export default function SerialConfig() {
                     onChange={e => setComPort(e.target.value)}
                     className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                   >
-                    {ports.length === 0 ? (
+                    <option value="VIRTUAL">VIRTUAL (Mock Simulation)</option>
+                    {ports.map(p => (
+                      <option key={p.path} value={p.path}>
+                        {p.path} {p.friendlyName ? `(${p.friendlyName})` : ''}
+                      </option>
+                    ))}
+                    {ports.length === 0 && comPort !== 'VIRTUAL' && (
                       <option value={comPort}>{comPort} (Not Found)</option>
-                    ) : (
-                      ports.map(p => (
-                        <option key={p.path} value={p.path}>
-                          {p.path} {p.friendlyName ? `(${p.friendlyName})` : ''}
-                        </option>
-                      ))
                     )}
                   </select>
                   <button 
