@@ -25,9 +25,6 @@ let reconnectTimeout = null;
 let autoReconnectEnabled = false;
 let activeConfig = null;
 
-let simulationInterval = null;
-let mockWeight = 25000;
-
 // Initialize Socket.IO instance
 function initSocket(socketIo) {
   io = socketIo;
@@ -136,11 +133,6 @@ async function disconnect() {
     reconnectTimeout = null;
   }
 
-  if (simulationInterval) {
-    clearInterval(simulationInterval);
-    simulationInterval = null;
-  }
-
   if (!portInstance) {
     setStatus('Disconnected');
     return;
@@ -167,21 +159,6 @@ async function connect(config) {
   activeConfig = config;
   currentPortName = config.comPort;
   autoReconnectEnabled = true;
-
-  if (config.comPort === 'VIRTUAL' || config.comPort === 'DUMMY') {
-    return new Promise((resolve) => {
-      setStatus('Connected');
-      addLog(0, 'CONNECTED');
-      
-      simulationInterval = setInterval(() => {
-        const fluctuation = Math.round((Math.random() * 20 - 10));
-        const finalWeight = mockWeight + fluctuation;
-        handleParsedLine(`ST,GS,+  ${finalWeight}kg`);
-      }, 1000);
-      
-      resolve();
-    });
-  }
 
   return new Promise((resolve, reject) => {
     try {
@@ -288,14 +265,6 @@ async function startWithSavedConfig() {
 
 // Test connection (temporarily open, verify, and close)
 async function testConnection(config) {
-  if (config.comPort === 'VIRTUAL' || config.comPort === 'DUMMY') {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 300);
-    });
-  }
-
   return new Promise((resolve, reject) => {
     const options = {
       path: config.comPort,
@@ -321,13 +290,6 @@ async function testConnection(config) {
   });
 }
 
-function setDummyWeight(weight) {
-  mockWeight = Number(weight);
-  if (currentPortName === 'VIRTUAL' || currentPortName === 'DUMMY') {
-    handleParsedLine(`ST,GS,+  ${mockWeight}kg`);
-  }
-}
-
 module.exports = {
   initSocket,
   listPorts,
@@ -335,7 +297,6 @@ module.exports = {
   disconnect,
   testConnection,
   startWithSavedConfig,
-  setDummyWeight,
   getStatus: () => ({
     status: currentStatus,
     port: currentPortName,

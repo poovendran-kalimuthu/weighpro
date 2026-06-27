@@ -139,17 +139,3 @@ exports.updateConfiguration = async (req, res) => {
     res.status(400).json({ message: 'Failed to save configuration', error: error.message });
   }
 };
-
-// POST /api/serial/dummy-weight
-exports.setDummyWeight = (req, res) => {
-  const { weight } = req.body;
-  if (weight === undefined || isNaN(Number(weight))) {
-    return res.status(400).json({ message: 'Valid weight value is required.' });
-  }
-  
-  serialService.setDummyWeight(weight);
-  res.json({
-    message: `Dummy weight updated to ${weight} kg`,
-    currentWeight: serialService.getCurrentWeight()
-  });
-};

@@ -11,6 +11,5 @@ router.get('/current-weight', serialController.getCurrentWeight);
 router.get('/logs', serialController.getLogs);
 router.get('/configuration', serialController.getConfiguration);
 router.put('/configuration', serialController.updateConfiguration);
-router.post('/dummy-weight', serialController.setDummyWeight);
 
 module.exports = router;

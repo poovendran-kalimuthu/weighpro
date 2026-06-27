@@ -25,10 +25,6 @@ export default function SerialConfig() {
   const [testingConnection, setTestingConnection] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   
-  // Dummy override states
-  const [dummyWeightInput, setDummyWeightInput] = useState(25000);
-  const [updatingDummy, setUpdatingDummy] = useState(false);
-  
   // Real-time states
   const [status, setStatus] = useState('Disconnected'); // Connected, Disconnected, Error, Connecting
   const [connectedPort, setConnectedPort] = useState(null);
@@ -332,51 +328,6 @@ export default function SerialConfig() {
               </div>
             )}
           </div>
-
-          {status === 'Connected' && connectedPort === 'DUMMY' && (
-            <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
-              <div>
-                <h3 className="font-bold text-slate-800 mb-1 flex items-center gap-2">
-                  <Cpu className="w-5 h-5 text-amber" />
-                  Dummy Weight Simulator Control
-                </h3>
-                <p className="text-slate-500 text-xs">
-                  Set custom manual weight values to feed into the indicator stream for local testing.
-                </p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-3 items-end">
-                <div className="flex-1 flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Simulated Weight (kg)</label>
-                  <input 
-                    type="number"
-                    value={dummyWeightInput}
-                    onChange={e => setDummyWeightInput(Number(e.target.value))}
-                    placeholder="25000"
-                    className="border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-mono font-bold w-full"
-                  />
-                </div>
-                <button 
-                  type="button"
-                  onClick={async () => {
-                    setUpdatingDummy(true);
-                    try {
-                      await api.post('/serial/dummy-weight', { weight: Number(dummyWeightInput) });
-                    } catch (err) {
-                      alert('Failed to update dummy weight: ' + err.message);
-                    } finally {
-                      setUpdatingDummy(false);
-                    }
-                  }}
-                  disabled={updatingDummy}
-                  className="bg-amber hover:bg-amber-bright text-slate-950 px-5 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer disabled:opacity-50 shrink-0 shadow-lg shadow-amber/10"
-                >
-                  {updatingDummy ? 'Updating...' : 'Set Dummy Weight'}
-                </button>
-              </div>
-            </div>
-          )}
-
         </div>
 
         {/* Column 2: Parameters Form */}
@@ -397,14 +348,14 @@ export default function SerialConfig() {
                     onChange={e => setComPort(e.target.value)}
                     className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                   >
-                    <option value="VIRTUAL">VIRTUAL (Mock Simulation)</option>
-                    {ports.map(p => (
-                      <option key={p.path} value={p.path}>
-                        {p.path} {p.friendlyName ? `(${p.friendlyName})` : ''}
-                      </option>
-                    ))}
-                    {ports.length === 0 && comPort !== 'VIRTUAL' && (
+                    {ports.length === 0 ? (
                       <option value={comPort}>{comPort} (Not Found)</option>
+                    ) : (
+                      ports.map(p => (
+                        <option key={p.path} value={p.path}>
+                          {p.path} {p.friendlyName ? `(${p.friendlyName})` : ''}
+                        </option>
+                      ))
                     )}
                   </select>
                   <button 
