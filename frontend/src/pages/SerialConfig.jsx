@@ -292,7 +292,7 @@ export default function SerialConfig() {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
-                {status === 'Connected' ? (
+                {status === 'Connected' || status === 'Error' || status === 'Connecting' ? (
                   <button 
                     onClick={handleDisconnect} 
                     disabled={actionLoading}
@@ -303,7 +303,7 @@ export default function SerialConfig() {
                 ) : (
                   <button 
                     onClick={handleConnect} 
-                    disabled={actionLoading || status === 'Connecting'}
+                    disabled={actionLoading}
                     className="flex-1 py-3 px-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer disabled:opacity-50"
                   >
                     <Play className="w-4 h-4" /> Connect
